@@ -17,17 +17,30 @@ namespace ServidorWeb.Controllers
     public class RecepcaoController : ApiController
     {
         [AcceptVerbs("GET")]
-        [Route("arquivo/{nome}")]
-        public string UnRar(string nome)
+        [Route("arquivo/c/{nome}/{f0}/{iteracoes}")]
+        public async void Construir(string nome, double f0, int iteracoes)
+        {
+            string root = System.Web.HttpContext.Current.Server.MapPath("~/Data/" + nome + "/"); //.Replace(':', ' ') + DateTime.Now.ToShortDateString().Replace('/', '-')
+            await Reconstrucao.Reconstruir(root, f0, iteracoes);
+        }
+        [AcceptVerbs("GET")]
+        [Route("arquivo/{nome}/{f0}/{iteracoes}")]
+        public async Task<string> UnRarAsync(string nome, double f0, int iteracoes)
         {
             string root = System.Web.HttpContext.Current.Server.MapPath("~/Data/" + nome + "/"); //.Replace(':', ' ') + DateTime.Now.ToShortDateString().Replace('/', '-')
             try
             {
                 RarArchive.WriteToDirectory(root + "Imagem-A.part001.rar", root, ExtractOptions.ExtractFullPath | ExtractOptions.Overwrite);
-            }
-            catch(FileNotFoundException ex)
-            {
                 
+            }
+            catch (Exception ex)
+            {
+                Console.Write(ex);
+            }
+            finally
+            {
+                Dispose();
+                await Reconstrucao.Reconstruir(root, f0, iteracoes);
             }
             return nome + " Recebimento feito com sucesso";
         }
@@ -49,7 +62,7 @@ namespace ServidorWeb.Controllers
             {
                 Directory.CreateDirectory(root);
             }
-            MultipartFormDataStreamProvider provider = new CustomMultipartFormDataStreamProvider(root); 
+            MultipartFormDataStreamProvider provider = new CustomMultipartFormDataStreamProvider(root, 25000); 
             var task = request.Content.ReadAsMultipartAsync(provider);
             return await task.ContinueWith(o =>
                 {
@@ -62,8 +75,7 @@ namespace ServidorWeb.Controllers
                         Content = new StringContent("Arquivo recebido com sucesso!")
                     };
                 }
-            );
-            
+            );            
         }
     }
 }
