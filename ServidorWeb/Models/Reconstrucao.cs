@@ -26,8 +26,7 @@ namespace ServidorWeb.Models
                 
                 Matrix<double> g = DenseMatrix.OfArray(dadosMatrix(arquivoG, 50816, 1));
                 var d = dadosMatrix(arquivoH, 50816, 3600);
-                Matrix<double> h = DenseMatrix.OfArray(d);
-                int tes = 0;
+                Matrix<double> h = DenseMatrix.OfArray(d);                
                 Matrix<double> f = M.Dense(h.ColumnCount, 1, f0);                
                 Matrix<double> r = g.Subtract(h.Multiply(f0));
                 Matrix<double> p = h.Transpose().Multiply(r);

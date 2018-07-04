@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27428.2027
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Servidor", "Servidor\Servidor.csproj", "{E97BD08E-1DCB-436B-84AB-F752ED91661B}"
-EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "DadosReconstrucao", "DadosReconstrucao\DadosReconstrucao.sqlproj", "{FF6AC63B-3BC1-4EEE-ACC5-559868BB9FB2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Modelo", "Modelo\Modelo.csproj", "{10C0F3C1-BA45-4458-8A0F-6A8FD2652DFA}"
@@ -17,10 +15,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{E97BD08E-1DCB-436B-84AB-F752ED91661B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E97BD08E-1DCB-436B-84AB-F752ED91661B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E97BD08E-1DCB-436B-84AB-F752ED91661B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E97BD08E-1DCB-436B-84AB-F752ED91661B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FF6AC63B-3BC1-4EEE-ACC5-559868BB9FB2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FF6AC63B-3BC1-4EEE-ACC5-559868BB9FB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FF6AC63B-3BC1-4EEE-ACC5-559868BB9FB2}.Debug|Any CPU.Deploy.0 = Debug|Any CPU

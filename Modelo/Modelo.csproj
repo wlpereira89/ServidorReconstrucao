@@ -67,11 +67,10 @@
     <Compile Include="DAO\Reconstrucoes.cs">
       <DependentUpon>reconstrucao.tt</DependentUpon>
     </Compile>
+    <Compile Include="PN\PNRegistro.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="PN\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <EntityDeploy Include="DAO\reconstrucao.edmx">
       <Generator>EntityModelCodeGenerator</Generator>
