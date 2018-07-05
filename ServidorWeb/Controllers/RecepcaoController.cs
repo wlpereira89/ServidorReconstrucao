@@ -13,10 +13,10 @@ using ServidorWeb.Models;
 
 namespace ServidorWeb.Controllers
 {
-    [RoutePrefix("api/recepcao")]
+    [RoutePrefix("api/recepc")]
     public class RecepcaoController : ApiController
     {
-        Reconstrucao modelReconstrucao;
+        
 
         public RecepcaoController()
         {
@@ -25,13 +25,14 @@ namespace ServidorWeb.Controllers
 
         [AcceptVerbs("GET")]
         [Route("arquivo/{nome}/{lImg}/{cImg}/{ganho}/{i}")]
-        public async Task<string> Construir(string nome, int lImg, int cImg, double ganho, int i)
+        public string Construir(string nome, int lImg, int cImg, double ganho, int i)
         {
             string root = System.Web.HttpContext.Current.Server.MapPath("~/Data/" + nome + "/"); //.Replace(':', ' ') + DateTime.Now.ToShortDateString().Replace('/', '-')
-            modelReconstrucao = new Reconstrucao();
-            modelReconstrucao.Reconstruir(root, lImg, cImg, ganho, i);
+            
 
-            return nome + " Recebimento feito com sucesso";
+            return Reconstrucao.Reconstruir(root, lImg, cImg, ganho, i);
+                
+            
         }
         
         [AcceptVerbs("POST")]

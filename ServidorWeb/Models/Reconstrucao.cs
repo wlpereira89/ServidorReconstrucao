@@ -11,35 +11,30 @@ using MathNet.Numerics.LinearAlgebra.Double;
 
 namespace ServidorWeb.Models
 {
-    public class Reconstrucao
+    public static class Reconstrucao
     {
        
-        StreamReader arquivoH;
+        static StreamReader arquivoH;
         //static double[,] d = ;
-        Matrix<double> h;
-        //Matrix<double> ht;
+        static Matrix<double> h;
+        //static Matrix<double> ht;
 
-        public Reconstrucao()
-        {
-            arquivoH = new StreamReader(HttpContext.Current.Server.MapPath("~/Models/" + "H-1.txt"));
-            var d = dadosMatrix(arquivoH, 50816, 3600);
-            h = DenseMatrix.OfArray(d);
-            //ht = h.Transpose();
-        }
+       
 
-        public void Reconstruir (String pasta, int linhas, int colunas, double ganho, int iteracoes)
+        public static string Reconstruir (String pasta, int linhas, int colunas, double ganho, int iteracoes)
         {
-            Reconstruir(pasta, new StreamReader(pasta + "g-1.txt"), linhas, colunas, ganho, iteracoes);
+            return Reconstruir(pasta, new StreamReader(pasta + "g-1.txt"), linhas, colunas, ganho, iteracoes);
         }
-        public void Reconstruir(String pasta, StreamReader arquivoG, int linhas, int colunas, double ganho, int iteracoes)
+        public static string Reconstruir(String pasta, StreamReader arquivoG, int linhas, int colunas, double ganho, int iteracoes)
         {
+            string ret = "";            
             try
-            {
-                var M = Matrix<double>.Build;
-                var V = Vector<double>.Build;
-                Bitmap imagem = new Bitmap(linhas, colunas);
-                Vector<double> r = DenseVector.OfArray(dadosVector(arquivoG, 50816));
+            {                
+                var V = Vector<double>.Build;                
+                Vector<double> r = dadosVector(arquivoG, 50816);
                 r = r.Multiply(ganho);
+                arquivoH = new StreamReader(HttpContext.Current.Server.MapPath("~/Models/" + "H-3.txt"));                
+                h = dadosMatrix(arquivoH, 50816, 3600);
                 Vector<double> f = V.Dense(linhas * colunas, 0);
                 Vector<double> p = V.Dense(linhas * colunas, 0);
                 Vector<double> rnext = V.Dense(50816, 0); 
@@ -51,25 +46,27 @@ namespace ServidorWeb.Models
                     f = f + p.Multiply(alpha);
                     rnext = r.Subtract(alpha * h.Multiply(p));
                     beta = multiplicarVetorPorTransposto(rnext) / multiplicarVetorPorTransposto(r);
-                    p = h.TransposeThisAndMultiply(rnext) + beta * p;
+                    p = h.TransposeThisAndMultiply(rnext) + (beta * p);
                     r = rnext;
                 }
                 
-                for(int i = 0; i<linhas; i++)
+                Bitmap imagem = new Bitmap(linhas, colunas);
+                for (int i = 0; i<linhas; i++)
                 {
                     for (int j = 0; j < colunas; j++)
                     {                        
-                        imagem.SetPixel(j, i, Color.FromArgb(Convert.ToInt32(value: f[j + i * colunas] * 255)));
+                        imagem.SetPixel(j, i, Color.FromArgb(Convert.ToInt32(value: f[j + i * colunas])));
                     }
                 }
                 imagem.Save(pasta + "img.bmp");
             }
             catch (Exception ex)
             {
-                Console.Write(ex);
+                return ret + ex.Message;
             }
+            return "Acabei";
         }
-        private double multiplicarVetorPorTransposto(Vector<double> r)
+        private static double multiplicarVetorPorTransposto(Vector<double> r)
         {
             double calc = 0;
             for (int i = 0; i < r.Count; i++)
@@ -82,15 +79,19 @@ namespace ServidorWeb.Models
             }
             return calc;
         }
-        private double[,] dadosMatrix(StreamReader arquivo, int linhas, int colunas)
+        private static Matrix<double> dadosMatrix(StreamReader arquivo, int linhas, int colunas)
         {
-            double[,] dadosDouble = new double[linhas, colunas];
+            Matrix<double> ret;
             try
             {
+
+                var M = Matrix<double>.Build;
+                ret = M.Dense(linhas, colunas);
+                
                 int i = 0;
                 String line;
                 while ((line = arquivo.ReadLine()) != null || i < linhas)
-                {
+                {                    
                     String[] linha = line.Split(',');
                     for (int j = 0; j < linha.Length; j++)
                     {
@@ -98,21 +99,24 @@ namespace ServidorWeb.Models
                         if (atual.Length > 1)
                         {
                             Double a = Convert.ToDouble(atual[0]) * Math.Pow(10, Convert.ToDouble(atual[1]));
-                            dadosDouble[i, j] = Convert.ToDouble(a);
+                            ret[i, j] = Convert.ToDouble(a);
                         }
                     }
                     i++;
                 }
+                return ret;
             }
             catch (Exception ex)
             {
                 Console.Write(ex);
             }
-            return dadosDouble;
+            return null;
         }
-        private double[] dadosVector(StreamReader arquivo, int linhas)
+
+        private static Vector<double> dadosVector(StreamReader arquivo, int linhas)
         {
-            double[] dadosDouble = new double[linhas];
+            var V = Vector<double>.Build;
+            Vector<double> dadosDouble = V.Dense(linhas);
             try
             {
                 int i = 0;
@@ -127,12 +131,13 @@ namespace ServidorWeb.Models
                     }                
                     i++;
                 }
+                return dadosDouble;
             }
             catch (Exception ex)
             {
                 Console.Write(ex);
             }
-            return dadosDouble;
+            return null;
         }
     }
 }  
