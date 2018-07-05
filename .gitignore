@@ -260,3 +260,4 @@ paket-files/
 __pycache__/
 *.pyc
 /ServidorWeb/Data
+/ServidorWeb/Models/H-1.txt

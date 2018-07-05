@@ -16,47 +16,34 @@ namespace ServidorWeb.Controllers
     [RoutePrefix("api/recepcao")]
     public class RecepcaoController : ApiController
     {
-        [AcceptVerbs("GET")]
-        [Route("arquivo/c/{nome}/{f0}/{iteracoes}")]
-        public async void Construir(string nome, double f0, int iteracoes)
+        Reconstrucao modelReconstrucao;
+
+        public RecepcaoController()
         {
-            string root = System.Web.HttpContext.Current.Server.MapPath("~/Data/" + nome + "/"); //.Replace(':', ' ') + DateTime.Now.ToShortDateString().Replace('/', '-')
-            await Reconstrucao.Reconstruir(root, f0, iteracoes);
+            //modelReconstrucao = new Reconstrucao();
         }
+
         [AcceptVerbs("GET")]
-        [Route("arquivo/{nome}/{f0}/{iteracoes}")]
-        public async Task<string> UnRarAsync(string nome, double f0, int iteracoes)
+        [Route("arquivo/{nome}/{lImg}/{cImg}/{ganho}/{i}")]
+        public async Task<string> Construir(string nome, int lImg, int cImg, double ganho, int i)
         {
             string root = System.Web.HttpContext.Current.Server.MapPath("~/Data/" + nome + "/"); //.Replace(':', ' ') + DateTime.Now.ToShortDateString().Replace('/', '-')
-            try
-            {
-                RarArchive.WriteToDirectory(root + "Imagem-A.part001.rar", root, ExtractOptions.ExtractFullPath | ExtractOptions.Overwrite);
-                
-            }
-            catch (Exception ex)
-            {
-                Console.Write(ex);
-            }
-            finally
-            {
-                Dispose();
-                await Reconstrucao.Reconstruir(root, f0, iteracoes);
-            }
+            modelReconstrucao = new Reconstrucao();
+            modelReconstrucao.Reconstruir(root, lImg, cImg, ganho, i);
+
             return nome + " Recebimento feito com sucesso";
         }
         
         [AcceptVerbs("POST")]
         [Route("arquivo/{nome}")]
         public async Task<HttpResponseMessage> ReceberArquivoAsync(string nome)
-        {
-            
+        {            
             HttpRequestMessage request = Request;
 
             if (!request.Content.IsMimeMultipartContent())
             {
                 throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
             }
-
             string root = System.Web.HttpContext.Current.Server.MapPath("~/Data/" + nome +"/"); //.Replace(':', ' ') + DateTime.Now.ToShortDateString().Replace('/', '-')
             if (!Directory.Exists(root))
             {
