@@ -16,7 +16,7 @@ namespace ServidorWeb.Models
        
         static StreamReader arquivoH;
         //static double[,] d = ;
-        static Matrix<double> h;
+        //static Matrix<double> h;
         //static Matrix<double> ht;
 
        
@@ -27,44 +27,57 @@ namespace ServidorWeb.Models
         }
         public static string Reconstruir(String pasta, StreamReader arquivoG, int linhas, int colunas, double ganho, int iteracoes)
         {
-            string ret = "";            
+            string ret = "";
+            DateTime inicio = DateTime.Now;
             try
-            {                
+            {
+                Matrix<double> h;
                 var V = Vector<double>.Build;                
                 Vector<double> r = dadosVector(arquivoG, 50816);
                 r = r.Multiply(ganho);
                 arquivoH = new StreamReader(HttpContext.Current.Server.MapPath("~/Models/" + "H-3.txt"));                
                 h = dadosMatrix(arquivoH, 50816, 3600);
+                if (h == null)
+                {
+                    return "Estouro de memória";
+                }
                 Vector<double> f = V.Dense(linhas * colunas, 0);
-                Vector<double> p = V.Dense(linhas * colunas, 0);
+                Vector<double> p = V.Dense(linhas * colunas);
+                p = h.TransposeThisAndMultiply(r);
                 Vector<double> rnext = V.Dense(50816, 0); 
                 double alpha;                
                 double beta;
-                for (int i = 1; i < iteracoes; i++)
+                for (int i = 1; i <= iteracoes; i++)
                 {
-                    alpha = multiplicarVetorPorTransposto(r) / multiplicarVetorPorTransposto(p);
+                    alpha = r * r / p * p;
                     f = f + p.Multiply(alpha);
                     rnext = r.Subtract(alpha * h.Multiply(p));
-                    beta = multiplicarVetorPorTransposto(rnext) / multiplicarVetorPorTransposto(r);
+                    beta = rnext * rnext / (r * r);           
                     p = h.TransposeThisAndMultiply(rnext) + (beta * p);
-                    r = rnext;
-                }
-                
-                Bitmap imagem = new Bitmap(linhas, colunas);
+                    rnext = r.Clone();
+                }                
+                StreamWriter arquivo = new StreamWriter(pasta + "img_" + iteracoes + ".txt");
+                Bitmap imagem = new Bitmap(linhas, colunas);                
                 for (int i = 0; i<linhas; i++)
                 {
-                    for (int j = 0; j < colunas; j++)
-                    {                        
-                        imagem.SetPixel(j, i, Color.FromArgb(Convert.ToInt32(value: f[j + i * colunas])));
+                    String linha = f[i * colunas].ToString();
+                    for (int j = 1; j < colunas; j++)
+                    {
+                        linha += ","+f[j + i * colunas];
                     }
+                    arquivo.WriteLine(linha);
                 }
-                imagem.Save(pasta + "img.bmp");
             }
             catch (Exception ex)
             {
                 return ret + ex.Message;
             }
-            return "Acabei";
+            finally
+            {
+                GC.Collect();
+            }
+            TimeSpan decorido = (DateTime.Now - inicio);
+            return  "Tempo decorrido " + Convert.ToInt32(decorido.TotalMinutes) + " minutos " + decorido.Seconds + " segundos. Imagem gerada com sucesso";
         }
         private static double multiplicarVetorPorTransposto(Vector<double> r)
         {
@@ -90,7 +103,7 @@ namespace ServidorWeb.Models
                 
                 int i = 0;
                 String line;
-                while ((line = arquivo.ReadLine()) != null || i < linhas)
+                while (((line = arquivo.ReadLine()) != null) && (i < linhas))
                 {                    
                     String[] linha = line.Split(',');
                     for (int j = 0; j < linha.Length; j++)
@@ -121,7 +134,7 @@ namespace ServidorWeb.Models
             {
                 int i = 0;
                 String line;
-                while ((line = arquivo.ReadLine()) != null || i < linhas)
+                while ((line = arquivo.ReadLine()) != null && (i < linhas))
                 {
                     String[] atual = line.Split('e');
                     if (atual.Length > 1)
